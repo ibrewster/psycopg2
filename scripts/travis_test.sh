@@ -23,26 +23,36 @@ run_test () {
     fi
 
     # Port number: 9.6 -> 50906
-    port=$(( 50000 + $(echo $VERSION \
+    PORT=$(( 50000 + $(echo $VERSION \
         | sed 's/\(.\+\)\.\(.\+\)/100 * \1 + \2/') ))
 
-    printf "\n\nRunning tests against PostgreSQL $VERSION (port $port)\n\n"
+    # Connect to the container host
+    HOST=$(ip route show | awk '/default/ {print $3}')
+
     export PSYCOPG2_TESTDB=$DBNAME
-    export PSYCOPG2_TESTDB_HOST=localhost
-    export PSYCOPG2_TESTDB_PORT=$port
+    export PSYCOPG2_TESTDB_HOST=$HOST
+    export PSYCOPG2_TESTDB_PORT=$PORT
     export PSYCOPG2_TESTDB_USER=travis
     export PSYCOPG2_TEST_REPL_DSN=
+
+    printf "\n\nRunning tests against PostgreSQL $VERSION (port $PORT)\n\n"
     unset PSYCOPG2_TEST_GREEN
-    python -c \
+    "$PYEXE" -c \
         "from psycopg2 import tests; tests.unittest.main(defaultTest='tests.test_suite')" \
         $VERBOSE
 
     printf "\n\nRunning tests against PostgreSQL $VERSION (green mode)\n\n"
     export PSYCOPG2_TEST_GREEN=1
-    python -c \
+    "$PYEXE" -c \
         "from psycopg2 import tests; tests.unittest.main(defaultTest='tests.test_suite')" \
         $VERBOSE
 }
+
+# Build and install Psycopg in the selected python installation
+apt-get -y install libpq-dev
+cd /psycopg2/
+PYEXE=$(ls -1 "$PYROOT"/bin/python{,3} 2>/dev/null | head -1)
+"$PYEXE" setup.py install
 
 # Postgres versions supported by Travis CI
 if [[ -z "$DONT_TEST_PRESENT" ]]; then

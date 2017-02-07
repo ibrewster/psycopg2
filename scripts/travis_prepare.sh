@@ -36,6 +36,7 @@ create () {
     export DATADIR="/var/lib/postgresql/$PACKAGE/psycopg"
     export PGDIR="/usr/lib/postgresql/$PACKAGE"
     export PGBIN="$PGDIR/bin"
+    DBNAME=psycopg2_test
 
     # install postgres versions not available on the image
     if (( "$VERNUM" < 902 || "$VERNUM" > 906 )); then
@@ -65,6 +66,7 @@ create () {
         set_param wal_level hot_standby
     fi
 
+    echo "host $DBNAME travis 0.0.0.0/0 trust" >> "$DATADIR/pg_hba.conf"
     if (( "$VERNUM" >= 900 )); then
         echo "host replication travis 0.0.0.0/0 trust" >> "$DATADIR/pg_hba.conf"
     fi
@@ -73,7 +75,6 @@ create () {
     sudo -u postgres "$PGBIN/pg_ctl" -w -l /dev/null -D "$DATADIR" start
 
     # create the test database
-    DBNAME=psycopg2_test
     CONNINFO="user=postgres host=localhost port=$PORT dbname=template1"
 
     if (( "$VERNUM" >= 901 )); then
