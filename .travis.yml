@@ -7,48 +7,30 @@ language: python
 services:
     - docker
 
-matrix:
-    include:
-        - env:
-            PYROOT=py26
-        - env:
-            PYROOT=py26d
-        - env:
-            PYROOT=py27
-        - env:
-            PYROOT=py27d
-        - env:
-            PYROOT=py32
-        - env:
-            PYROOT=py32d
-        - env:
-            PYROOT=py33
-        - env:
-            PYROOT=py33d
-        - env:
-            PYROOT=py34
-        - env:
-            PYROOT=py34d
-        - env:
-            PYROOT=py35
-        - env:
-            PYROOT=py35d
-        - env:
-            PYROOT=py36
-        - env:
-            PYROOT=py36d
+python:
+    - 2.7
+    - 3.6
+    - 2.6
+    - 3.5
+    - 3.4
+    - 3.3
+    - 3.2
+
+env:
+    - IMAGE=piro/manypython_i686   PYDEBUG=
+    - IMAGE=piro/manypython_i686   PYDEBUG=d
+    - IMAGE=piro/manypython_x86_64 PYDEBUG=
+    - IMAGE=piro/manypython_x86_64 PYDEBUG=d
 
 install:
   - sudo scripts/travis_prepare.sh
   - docker pull piro/manypython_i686
 
-
 script:
   - docker run --rm -v `pwd`:/psycopg2
     -e TEST_PAST -e TEST_FUTURE -e DONT_TEST_PRESENT -e TEST_VERBOSE
-    -e PYROOT=/opt/$PYROOT
-    piro/manypython_i686
-    /psycopg2/scripts/travis_test.sh
+    -e PYROOT="/opt/py$(echo $TRAVIS_PYTHON_VERSION | sed 's/\.//')$PYDEBUG"
+    $IMAGE /psycopg2/scripts/travis_test.sh
 
 notifications:
   email: false
