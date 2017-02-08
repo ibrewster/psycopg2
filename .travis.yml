@@ -19,7 +19,7 @@ python:
 env:
     - IMAGE=piro/manypython_i686   PYDEBUG=
     - IMAGE=piro/manypython_i686   PYDEBUG=d
-    - IMAGE=piro/manypython_x86_64 PYDEBUG=
+#   - IMAGE=piro/manypython_x86_64 PYDEBUG=
     - IMAGE=piro/manypython_x86_64 PYDEBUG=d
 
 install:
