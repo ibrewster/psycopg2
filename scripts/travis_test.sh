@@ -48,8 +48,12 @@ run_test () {
         $VERBOSE
 }
 
-# Build and install Psycopg in the selected python installation
+# Install dependencies
+
+apt-get -y update
 apt-get -y install libpq-dev
+
+# Build and install Psycopg in the selected python installation
 cd /psycopg2/
 PYEXE=$(ls -1 "$PYROOT"/bin/python{,3} 2>/dev/null | head -1)
 "$PYEXE" setup.py install
